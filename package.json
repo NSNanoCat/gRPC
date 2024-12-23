@@ -1,0 +1,36 @@
+{
+	"name": "@nsnanocat/grpc",
+	"description": "Pure JS's gRPC decode/encode module for well-known iOS network tools",
+	"author": "VirgilClyne <Virgil@nanocat.me>",
+	"homepage": "https://NSNanoCat.github.io/gRPC",
+	"keywords": [
+		"loon",
+		"quantumult",
+		"surge",
+		"shadowrocket",
+		"stash",
+		"egern"
+	],
+	"license": "Apache-2.0",
+	"bugs": "https://github.com/NSNanoCat/gRPC/issues",
+	"main": "index.mjs",
+	"type": "module",
+	"scripts": {
+		"tsc:build": "npx tsc",
+		"test": "exit 0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/NSNanoCat/gRPC.git"
+	},
+	"files": [
+		"index.mjs"
+	],
+	"devDependencies": {
+		"typescript": "^5.6.3"
+	},
+	"dependencies": {
+		"@nsnanocat/util": "^1.8.7",
+		"pako": "^2.1.0"
+	}
+}
