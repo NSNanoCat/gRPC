@@ -9,10 +9,13 @@ on:
 permissions:
   id-token: write # Required for OIDC
   contents: read
+  packages: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Update local package.json version from release tag
@@ -31,6 +34,8 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Update local package.json version from release tag
