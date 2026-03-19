@@ -29,7 +29,6 @@ jobs:
           node-version: "24"
           registry-url: "https://npm.pkg.github.com"
           scope: "@nsnanocat"
-          always-auth: true
       - run: npm ci
       - run: npm run build --if-present
       - run: npm test
@@ -50,7 +49,6 @@ jobs:
           node-version: "24"
           registry-url: "https://npm.pkg.github.com"
           scope: "@nsnanocat"
-          always-auth: true
       - run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -70,10 +68,11 @@ jobs:
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
+          scope: "@nsnanocat"
       - name: Publish to npm
         run: |
           if [[ "${{ steps.npm_tag.outputs.tag }}" == "latest" ]]; then
-            npm publish --access public
+            npm publish --access public --provenance
           else
-            npm publish --access public --tag "${{ steps.npm_tag.outputs.tag }}"
+            npm publish --access public --tag "${{ steps.npm_tag.outputs.tag }}" --provenance
           fi

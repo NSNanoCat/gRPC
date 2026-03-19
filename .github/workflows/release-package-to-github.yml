@@ -22,7 +22,6 @@ jobs:
           node-version: "24"
           registry-url: "https://npm.pkg.github.com"
           scope: "@nsnanocat"
-          always-auth: true
       - run: npm ci
       - run: npm run build --if-present
       - run: npm test
@@ -48,7 +47,6 @@ jobs:
           node-version: "24"
           registry-url: "https://npm.pkg.github.com"
           scope: "@nsnanocat"
-          always-auth: true
       - run: npm ci
       - run: npm run build --if-present
       - run: npm publish
