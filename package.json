@@ -30,7 +30,7 @@
 		"typescript": "^5.9.3"
 	},
 	"dependencies": {
-		"@nsnanocat/util": "^2.4.1",
+		"@nsnanocat/util": "^2.5.3",
 		"pako": "^2.1.0"
 	}
 }
