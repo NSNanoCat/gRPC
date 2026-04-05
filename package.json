@@ -17,7 +17,7 @@
 	"type": "module",
 	"scripts": {
 		"tsc:build": "npx tsc",
-		"test": "exit 0"
+		"test": "node --test"
 	},
 	"repository": {
 		"type": "git",

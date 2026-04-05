@@ -1,6 +1,8 @@
 import { $app, Console } from "@nsnanocat/util";
 import pako from "pako";
 
+const TEXT_DECODER = new TextDecoder();
+
 /* https://grpc.io/ */
 export default class gRPC {
 	static decode(bytesBody = new Uint8Array([])) {
@@ -13,21 +15,47 @@ export default class gRPC {
 			default:
 				break;
 			case 1: // Gzip
-				switch ($app) {
-					case "Loon":
-					case "Surge":
-					case "Egern":
-						body = $utils.ungzip(body);
-						break;
-					default:
-						body = pako.ungzip(body); // 解压缩protobuf数据体
-						break;
-				}
+				body = gRPC.#ungzip(body); // 解压缩protobuf数据体
 				Header[0] = 0; // unGzip
 				break;
 		}
 		Console.log("✅ gRPC.decode");
 		return body;
+	}
+
+	static decodeWeb(bytesBody = new Uint8Array([])) {
+		Console.log("☑️ gRPC.decodeWeb");
+		// 解析 grpc-web binary unary 响应，返回 trailer header 和 protobuf bodyBytes
+		const header = {};
+		let bodyBytes = new Uint8Array([]);
+		let dataFrameCount = 0;
+		let offset = 0;
+		while (offset < bytesBody.length) {
+			// grpc-web frame: 1 byte flag + 4 bytes big-endian length + frame payload
+			if (offset + 5 > bytesBody.length) throw new Error("Invalid gRPC-Web frame header");
+			const frameFlag = bytesBody[offset];
+			const frameLength = gRPC.#ReadUInt32(bytesBody, offset + 1);
+			offset += 5;
+			if (offset + frameLength > bytesBody.length) throw new Error("Invalid gRPC-Web frame length");
+			let frameBody = bytesBody.slice(offset, offset + frameLength);
+			offset += frameLength;
+			const isTrailer = (frameFlag & 0x80) === 0x80;
+			const isCompressed = (frameFlag & 0x01) === 0x01;
+			if ((frameFlag & 0x7e) !== 0) throw new Error(`Unsupported gRPC-Web frame flag: ${frameFlag}`);
+			if (isTrailer) {
+				// unary 响应里 trailer frame 必须是最后一帧，内部是 CRLF 分隔的 header block
+				if (offset !== bytesBody.length) throw new Error("Invalid gRPC-Web response: trailer frame must be last");
+				if (isCompressed) frameBody = gRPC.#ungzip(frameBody);
+				Object.assign(header, gRPC.#parseHeaderBlock(frameBody));
+				continue;
+			}
+			// 当前只支持 unary，因此只接受一个 data frame，并把它解成 protobuf body
+			if (dataFrameCount > 0) throw new Error("Invalid gRPC-Web unary response: multiple data frames");
+			dataFrameCount += 1;
+			bodyBytes = isCompressed ? gRPC.#ungzip(frameBody) : frameBody;
+		}
+		Console.log("✅ gRPC.decodeWeb");
+		return { header, bodyBytes };
 	}
 
 	static encode(body = new Uint8Array([]), encoding = "identity") {
@@ -53,6 +81,37 @@ export default class gRPC {
 		Console.log("✅ gRPC.encode");
 		return BytesBody;
 	}
+
+	static #ungzip = (body = new Uint8Array([])) => {
+		switch ($app) {
+			case "Loon":
+			case "Surge":
+			case "Egern":
+				return $utils.ungzip(body);
+			default:
+				return pako.ungzip(body);
+		}
+	};
+
+	static #ReadUInt32 = (bytes = new Uint8Array([]), offset = 0) => {
+		const view = new DataView(bytes.buffer, bytes.byteOffset + offset, 4);
+		return view.getUint32(0, false);
+	};
+
+	static #parseHeaderBlock = (bytes = new Uint8Array([])) => {
+		const text = TEXT_DECODER.decode(bytes);
+		const header = {};
+		for (const line of text.split("\r\n")) {
+			if (!line) continue;
+			const separatorIndex = line.indexOf(":");
+			if (separatorIndex <= 0) continue;
+			const key = line.slice(0, separatorIndex).trim().toLowerCase();
+			const value = line.slice(separatorIndex + 1).trim();
+			if (!key) continue;
+			header[key] = key in header ? `${header[key]}, ${value}` : value;
+		}
+		return header;
+	};
 
 	// 计算校验和 (B站为数据本体字节数)
 	static #Checksum = (num = 0) => {
