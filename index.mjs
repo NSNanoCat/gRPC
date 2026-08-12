@@ -17,8 +17,10 @@ export default class gRPC {
 	 * Decodes a single binary gRPC frame and decompresses a gzip payload when
 	 * required by the compression flag.
 	 *
-	 * @param {Uint8Array} [bytesBody=new Uint8Array()] 带帧结构的 gRPC 消息。 The framed gRPC message.
-	 * @returns {Uint8Array} 去除帧结构后的 protobuf 负载。 The unframed protobuf payload.
+	 * @param {Uint8Array} [bytesBody=new Uint8Array()] 带帧结构的 gRPC 消息。<br />
+	 * The framed gRPC message.
+	 * @returns {Uint8Array} 去除帧结构后的 protobuf 负载。<br />
+	 * The unframed protobuf payload.
 	 */
 	static decode(bytesBody = new Uint8Array([])) {
 		Console.log("☑️ gRPC.decode");
@@ -44,9 +46,12 @@ export default class gRPC {
 	 * Decodes a binary unary gRPC-Web response containing one data frame and an
 	 * optional final trailer frame.
 	 *
-	 * @param {Uint8Array} [bytesBody=new Uint8Array()] 完整的 gRPC-Web 响应体。 The complete gRPC-Web response body.
-	 * @returns {{header: Record<string, string>, bodyBytes: Uint8Array}} 解析后的 trailer 标头与 protobuf 负载。 The parsed trailer headers and protobuf payload.
-	 * @throws {Error} 当帧格式错误、使用不支持的标志、包含多个数据帧，或 trailer 不在末尾时抛出。 Thrown when a frame is malformed, uses an unsupported flag, contains multiple data frames, or places a trailer before the end.
+	 * @param {Uint8Array} [bytesBody=new Uint8Array()] 完整的 gRPC-Web 响应体。<br />
+	 * The complete gRPC-Web response body.
+	 * @returns {{header: Record<string, string>, bodyBytes: Uint8Array}} 解析后的 trailer 标头与 protobuf 负载。<br />
+	 * The parsed trailer headers and protobuf payload.
+	 * @throws {Error} 当帧格式错误、使用不支持的标志、包含多个数据帧，或 trailer 不在末尾时抛出。<br />
+	 * Thrown when a frame is malformed, uses an unsupported flag, contains multiple data frames, or places a trailer before the end.
 	 */
 	static decodeWeb(bytesBody = new Uint8Array([])) {
 		Console.log("☑️ gRPC.decodeWeb");
@@ -88,9 +93,12 @@ export default class gRPC {
 	 *
 	 * Encodes a protobuf payload as a single binary gRPC frame.
 	 *
-	 * @param {Uint8Array} [body=new Uint8Array()] protobuf 负载。 The protobuf payload.
-	 * @param {"identity" | "gzip"} [encoding="identity"] 负载编码方式。 The payload encoding.
-	 * @returns {Uint8Array} 带帧结构的 gRPC 消息。 The framed gRPC message.
+	 * @param {Uint8Array} [body=new Uint8Array()] protobuf 负载。<br />
+	 * The protobuf payload.
+	 * @param {"identity" | "gzip"} [encoding="identity"] 负载编码方式。<br />
+	 * The payload encoding.
+	 * @returns {Uint8Array} 带帧结构的 gRPC 消息。<br />
+	 * The framed gRPC message.
 	 */
 	static encode(body = new Uint8Array([]), encoding = "identity") {
 		Console.log("☑️ gRPC.encode");
