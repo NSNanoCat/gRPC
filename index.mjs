@@ -3,8 +3,19 @@ import pako from "pako";
 
 const TEXT_DECODER = new TextDecoder();
 
-/* https://grpc.io/ */
+/**
+ * Helpers for encoding and decoding binary gRPC and gRPC-Web frames.
+ *
+ * @see https://grpc.io/
+ */
 export default class gRPC {
+	/**
+	 * Decodes a single binary gRPC frame and decompresses a gzip payload when
+	 * required by the compression flag.
+	 *
+	 * @param {Uint8Array} [bytesBody=new Uint8Array()] The framed gRPC message.
+	 * @returns {Uint8Array} The unframed protobuf payload.
+	 */
 	static decode(bytesBody = new Uint8Array([])) {
 		Console.log("☑️ gRPC.decode");
 		// 先拆分gRPC校验头和protobuf数据体
@@ -23,6 +34,14 @@ export default class gRPC {
 		return body;
 	}
 
+	/**
+	 * Decodes a binary unary gRPC-Web response containing one data frame and an
+	 * optional final trailer frame.
+	 *
+	 * @param {Uint8Array} [bytesBody=new Uint8Array()] The complete gRPC-Web response body.
+	 * @returns {{header: Record<string, string>, bodyBytes: Uint8Array}} The parsed trailer headers and protobuf payload.
+	 * @throws {Error} If a frame is malformed, uses an unsupported flag, contains multiple data frames, or places a trailer before the end.
+	 */
 	static decodeWeb(bytesBody = new Uint8Array([])) {
 		Console.log("☑️ gRPC.decodeWeb");
 		// 解析 grpc-web binary unary 响应，返回 trailer header 和 protobuf bodyBytes
@@ -58,6 +77,13 @@ export default class gRPC {
 		return { header, bodyBytes };
 	}
 
+	/**
+	 * Encodes a protobuf payload as a single binary gRPC frame.
+	 *
+	 * @param {Uint8Array} [body=new Uint8Array()] The protobuf payload.
+	 * @param {"identity" | "gzip"} [encoding="identity"] The payload encoding.
+	 * @returns {Uint8Array} The framed gRPC message.
+	 */
 	static encode(body = new Uint8Array([]), encoding = "identity") {
 		Console.log("☑️ gRPC.encode");
 		// Header: 1位：是否校验数据 （0或者1） + 4位:校验值（数据长度）
